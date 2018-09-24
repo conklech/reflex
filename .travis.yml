@@ -8,9 +8,9 @@ matrix:
     env: COMPILER=ghc802
   - os: linux
     env: COMPILER=ghcjs
-  - os: macos
+  - os: osx
     env: COMPILER=ghc802
-  - os: macos
+  - os: osx
     env: COMPILER=ghcjs
 before_script:
 - sudo mount -o remount,exec,size=4G,mode=755 /run/user || true
