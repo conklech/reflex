@@ -1,16 +1,27 @@
-# Cache Buster: 0
+os:
+- linux
+- osx
 language: nix
-cache:
-  directories:
-    - /nix
+sudo: required
 matrix:
   include:
-  - env: COMPILER=ghc7103
   - env: COMPILER=ghc821
   - env: COMPILER=ghc802
   - env: COMPILER=ghcjs
+before_script:
+- sudo mount -o remount,exec,size=4G,mode=755 /run/user || true
+- sudo mkdir -p /etc/nix
+- echo "trusted-users = root $USER" | sudo tee -a /etc/nix/nix.conf
+- sudo launchctl kickstart -k system/org.nixos.nix-daemon || true
 script:
-  - set -e
-  - nix-build -E "with (import <nixpkgs> {}); pkgs.haskell.packages.$COMPILER.callPackage ./default.nix { }"
-  - nix-collect-garbage -d # This is important to do right before 'script' ends so the cache gets GCed
-
+- nix-env -if https://github.com/cachix/cachix/tarball/master --extra-substituters
+  https://cachix.cachix.org --trusted-public-keys 'cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
+  cachix.cachix.org-1:eWNHQldwUO7G2VkjpnjDbWwy4KQ/HNxht7H4SSoMckM='
+- cachix use conklech-reflex
+- cachix push conklech-reflex --watch-store&
+- set -e
+- nix-build -E "with (import <nixpkgs> {}); pkgs.haskell.packages.$COMPILER.callPackage
+  ./default.nix { }"
+env:
+  global:
+    secure: eB4OJBZISzFfnVdCi1P+ucn2j0RBjX5BWVuIZOOAKxdjRZstEpv6rEIP0gWmnMCIjf7jSl2c1j8iPk1mm9wDOUeZtHV7V5P6VeVgUfGswhVpS0rVfUcQgLl4Yll3rim5IFX/X9dV64mcVzL56BkeJKMB8RQAdbGOAPNzKeVgf7YVTjc1Xpqb55WjGtDlp2gWnaBXcp7PH4xjVYh4FUqt7ec/hGyjIYgA4s5/nUYvudyKfJJaJuy8zwSr/PVPIxeciYZ1r7bFOtYg0JXTBRXyxKz4syEw8UxODS6bIzNta4Rr4O/75OJfqilIHv3n4KIY1BBfKGFBFNUra/2ymDgELMDiqO3Y5gnskHEhf829xyfP8QYKeCuNxEgZ0FaD69ChSGnHmRbiMU+UtlusACa18kCR0BPTeZhSfNQ1QnQnZrP0GqSZfdrE6E2rydYXydSKomNRig5ecLVyZM6peEf/YIUsbtAw+q1Cxn8pY7nllGMoZVmT+2A67YyyOpahGONCM50S3f3/Ixmwe6B8jcxrg1XHL35JBGIl/7AlImKLG9waEAC94DIlyyn9r3wzeeJSjEJTAmHFZyjNHk3xMX4851gxEjQdb3gRLvPr1JQTlVotUU6iVbKMccd/XP69G0zhBSvuJAL92P3G1MU027+46x+B1zif6co/5ianKJnNVRY=
