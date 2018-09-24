@@ -1,13 +1,17 @@
-os:
-- linux
-- osx
 language: nix
 sudo: required
 matrix:
   include:
-  - env: COMPILER=ghc821
-  - env: COMPILER=ghc802
-  - env: COMPILER=ghcjs
+  - os: linux
+    env: COMPILER=ghc821
+  - os: linux
+    env: COMPILER=ghc802
+  - os: linux
+    env: COMPILER=ghcjs
+  - os: macos
+    env: COMPILER=ghc802
+  - os: macos
+    env: COMPILER=ghcjs
 before_script:
 - sudo mount -o remount,exec,size=4G,mode=755 /run/user || true
 - sudo mkdir -p /etc/nix
